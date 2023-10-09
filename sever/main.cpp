@@ -87,27 +87,32 @@ void main()
 	//	send(clientSocket, buf, bytesReceived + 1, 0);
 
 	//	// display on sever
-	//	cout << "client: " << buf << endl;
+	//	cout << "client: " << buf << endl; 
 	//}
 
 	// nhận tên file 
 	char nameFile[8];
 	ZeroMemory(nameFile, strlen(nameFile));
-	recv(clientSocket, (char*)nameFile, 8, 0);
-	cout << "nameFile: " << nameFile << endl; // in ra tên file
+	int err = recv(clientSocket, (char*)nameFile, 8, 0);
+	if (err <= 0)
+	{
+		printf("recv: %d\n", WSAGetLastError());
+		closesocket(clientSocket);
+	}
+	printf("recv %d bytes [OK]\n", err);
+	//cout << "nameFile: " << nameFile << endl; // in ra tên file
+
 	char path[] = "C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\sever\\";
-	char* path_result = new char[strlen(nameFile) + strlen(path)];
+	char* path_result = new char[sizeof(nameFile) + sizeof(path)];
 	strcpy(path_result, path);
 	// Nối chuỗi thứ hai vào kết quả
-	strcat(path_result, nameFile);
+	strcat(path_result, nameFile);	
 
-	/*char path_result[] = path.attend(nameFile);*/
-	
-	cout <<"path_result: " << path_result << endl; // in ra đường dẫn
+	//cout <<"path_result: " << path_result << endl; // in ra đường dẫn
 
 	// nhận kích thước file
 	int filesize = 0;
-	int err = recv(clientSocket, (char*)&filesize, sizeof(filesize)+1, 0);
+	err = recv(clientSocket, (char*)&filesize, sizeof(filesize), 0);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
@@ -117,26 +122,21 @@ void main()
 	cout << "size of file:" << filesize << endl; //in size
 
 	char* buffer = new char[filesize];
-	ZeroMemory(buffer, filesize);
-	//nhận data
-	err = recv(clientSocket, buffer, filesize , MSG_WAITALL);
-	buffer[filesize] = 0;
-	cout << "data: " << buffer << endl; // in data
+	err = recv(clientSocket, buffer, filesize, MSG_WAITALL);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
 		closesocket(clientSocket);
 	}
-
 	printf("recv %d bytes [OK]\n", err);
+	cout << "data: " << buffer << endl; // in data
 
 	ofstream file(path_result, ios::out | ios::binary);
 	file.write(buffer, filesize);
+	file.close();
 
 	delete[] buffer;
 	delete[] path_result;
-	file.close();
-
 	//close socket
 	closesocket(clientSocket);
 

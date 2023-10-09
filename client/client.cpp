@@ -79,28 +79,31 @@ void main()
 	// gửi tên file
 
 
-	char nameFile[] = "hinh.txt";
-	send(sock, (char*)nameFile, strlen(nameFile), 0);
-
-	ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.txt", ios::in | ios::binary );
-	file.seekg(0, ios::end);
-	int size = file.tellg();
-	file.seekg(0, ios::beg );
-	char* buffer = new char[size+1];
-	ZeroMemory(buffer, size);
-	file.read(buffer,size);
-	buffer[size] = 0;
-	file.close();
-
-	// gửi kích thước file (binary)
-	int* fsize = &size;
-	int err = send(sock, (char*)fsize, sizeof(fsize)+1, 0);
-	cout << "size of data: " << size << endl;
+	char nameFile[] = "hinh.mp4";
+	int err = send(sock, (char*)nameFile, strlen(nameFile), 0);
 	if (err <= 0)
 	{
 		printf("send: %d\n", WSAGetLastError());
 	}
 	printf("send %d bytes [OK]\n", err);
+	ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.mp4", ios::in | ios::binary );
+	file.seekg(0, ios::end);
+	int size = file.tellg();
+	file.seekg(0, ios::beg );
+	char* buffer = new char[size];
+	file.read(buffer,size);
+	buffer[size] = 0;
+	file.close();
+	
+	// gửi kích thước file (binary)
+	int* fsize = &size;
+	err = send(sock, (char*)fsize, sizeof(fsize), 0); //sizeof(fize) fail
+	if (err <= 0)
+	{
+		printf("send: %d\n", WSAGetLastError());
+	}
+	printf("send %d bytes [OK]\n", err);
+	cout << "size of data: " << size << endl;
 
 	// gửi data (binary) 
 	err = send(sock, buffer, size , 0);
@@ -109,8 +112,8 @@ void main()
 		printf("send: %d\n", WSAGetLastError());
 	}
 	printf("send %d bytes [OK]\n", err);
-
 	cout << "data: " << buffer << endl;
+
 	delete[] buffer;
 
 	// Gracefully close down everything
