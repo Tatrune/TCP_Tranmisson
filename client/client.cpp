@@ -2,6 +2,7 @@
 #include <string>
 #include <WS2tcpip.h>
 #include <fstream>
+
 #pragma comment(lib, "ws2_32.lib")
 
 using namespace std;
@@ -76,24 +77,25 @@ void main()
 	//} while (userInput.size() > 0);
 
 	// gửi tên file
-	/*char nameFile[] = "hinh.rar";
-	send(sock, (char*)nameFile, sizeof(nameFile), 0);*/
 
-	char nameFile[] = "hinh.rar";
+
+	char nameFile[] = "hinh.txt";
 	send(sock, (char*)nameFile, strlen(nameFile), 0);
 
-	ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.rar", ios::binary);
+	ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.txt", ios::in | ios::binary );
 	file.seekg(0, ios::end);
 	int size = file.tellg();
-	file.seekg(0, ios::beg);
-	char* buffer = new char[size];
-	file.read(buffer, size);
+	file.seekg(0, ios::beg );
+	char* buffer = new char[size+1];
+	ZeroMemory(buffer, size);
+	file.read(buffer,size);
+	buffer[size] = 0;
 	file.close();
 
 	// gửi kích thước file (binary)
 	int* fsize = &size;
-	int err = send(sock, (char*)fsize, sizeof(fsize), 0);
-	cout << "size: " << size << endl;
+	int err = send(sock, (char*)fsize, sizeof(fsize)+1, 0);
+	cout << "size of data: " << size << endl;
 	if (err <= 0)
 	{
 		printf("send: %d\n", WSAGetLastError());
@@ -101,12 +103,13 @@ void main()
 	printf("send %d bytes [OK]\n", err);
 
 	// gửi data (binary) 
-	err = send(sock, buffer, size, 0);
+	err = send(sock, buffer, size , 0);
 	if (err <= 0)
 	{
 		printf("send: %d\n", WSAGetLastError());
 	}
 	printf("send %d bytes [OK]\n", err);
+
 	cout << "data: " << buffer << endl;
 	delete[] buffer;
 
