@@ -9,7 +9,7 @@ using namespace std;
 
 void main()
 {
-	string ipAddress = "127.0.0.1";			// IP Address of the server
+	string ipAddress = "192.168.1.118";			// IP Address of the server
 	int port = 54000;						// Listening port # on the server
 
 	// Initialize WinSock
@@ -47,46 +47,22 @@ void main()
 		return;
 	}
 
-	// Do-while loop to send and receive data
-	//char buf[4096];
-	//string userInput;
-
-	//do
-	//{
-	//	// Prompt the user for some text
-	//	cout << ">";
-	//	getline(cin, userInput);
-
-	//	if (userInput.size() > 0)		// Make sure the user has typed in something
-	//	{
-	//		// Send the text
-	//		int sendResult = send(sock, userInput.c_str(), userInput.size() + 1 , 0);
-	//		if (sendResult != SOCKET_ERROR)
-	//		{
-	//			// Wait for response
-
-	//			ZeroMemory(buf, 4096);
-	//			int bytesReceived = recv(sock, buf, 4096, 0); //Waiting...
-	//			if (bytesReceived > 0)
-	//			{
-	//				// Echo response to console
-	//				cout << "Sent: > " << string(buf, 0, bytesReceived) << endl;
-	//			}
-	//		}
-	//	}
-	//} while (userInput.size() > 0);
-
 	// gửi tên file
-
-
-	char nameFile[] = "hinh.mp4";
-	int err = send(sock, (char*)nameFile, strlen(nameFile), 0);
+	char nameFile[30] = "";
+	string path;
+	cout << "Nhap ten thu muc can tao ben may chu: " << endl; 
+	cin >> nameFile;
+	getchar();
+	cout << "Nhap duong dan den file thu muc can tao ben may chu: " << endl;
+	getline(cin, path);
+	int err = send(sock, (char*)nameFile, 30, 0);
 	if (err <= 0)
 	{
 		printf("send: %d\n", WSAGetLastError());
 	}
 	printf("send %d bytes [OK]\n", err);
-	ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.mp4", ios::in | ios::binary );
+	//ifstream file("C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\client\\hinh.rar", ios::in | ios::binary );
+	ifstream file(path, ios::in | ios::binary);
 	file.seekg(0, ios::end);
 	int size = file.tellg();
 	file.seekg(0, ios::beg );

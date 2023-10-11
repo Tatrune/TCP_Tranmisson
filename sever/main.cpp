@@ -63,52 +63,24 @@ void main()
 	//close listening socket
 	closesocket(listening);
 
-	//while loop: accept and echo message back to client
-	//char buf[4096];
-	//while (true)
-	//{
-	//	ZeroMemory(buf, 4096);
-
-	//	// wait for client to send data
-	//	int bytesReceived = recv(clientSocket, buf, 4096, 0);
-	//	if (bytesReceived == SOCKET_ERROR)
-	//	{
-	//		cerr << "Error in recv(). quitting" << endl;
-	//		break;B
-	//	}
-
-	//	if (bytesReceived == 0)
-	//	{
-	//		cout << "client disconnected" << endl;
-	//		break;
-	//	}
-
-	//	// Echo massage back to client
-	//	send(clientSocket, buf, bytesReceived + 1, 0);
-
-	//	// display on sever
-	//	cout << "client: " << buf << endl; 
-	//}
-
-	// nhận tên file 
-	char nameFile[8];
-	ZeroMemory(nameFile, strlen(nameFile));
-	int err = recv(clientSocket, (char*)nameFile, 8, 0);
+	char nameFile[30];
+	int err = recv(clientSocket, (char*)nameFile, 30, 0);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
 		closesocket(clientSocket);
 	}
+	/*nameFile[err] = NULL;*/
 	printf("recv %d bytes [OK]\n", err);
-	//cout << "nameFile: " << nameFile << endl; // in ra tên file
-
-	char path[] = "C:\\Users\\ACER NITRO 5\\Desktop\\Tcp_protocol\\sever\\";
-	char* path_result = new char[sizeof(nameFile) + sizeof(path)];
-	strcpy(path_result, path);
-	// Nối chuỗi thứ hai vào kết quả
-	strcat(path_result, nameFile);	
-
-	//cout <<"path_result: " << path_result << endl; // in ra đường dẫn
+	cout << "nameFile: " << nameFile << endl; // in ra tên file
+	
+	string path;
+	cout << "Nhap duong dan den file thu muc can tao ben may chu: " << endl;
+	getline(cin, path);
+	//char* path_result = new char[sizeof(nameFile) + sizeof(path)];
+	string path_result;
+	path_result = path + nameFile;
+	cout <<"path_result: " << path_result << endl; // in ra đường dẫn
 
 	// nhận kích thước file
 	int filesize = 0;
@@ -136,7 +108,8 @@ void main()
 	file.close();
 
 	delete[] buffer;
-	delete[] path_result;
+	//delete[] path_result;
+
 	//close socket
 	closesocket(clientSocket);
 
