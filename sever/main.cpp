@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿//#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <WS2tcpip.h>
 #include <string>
@@ -11,8 +11,25 @@ using namespace std;
 
 #pragma comment (lib,"ws2_32.lib")
 
+typedef struct setting
+{
+	char nameFile[50] = "";
+	string path;
+	string ipAddress; // dia chi may chi
+	int size; // kich thuoc cua file
+	int	port; // Listening port # on the server
+	string path_result; // duong dan file gui den
+	int filesize = 0; // kich thuoc file
+	string a = "\\"; // "\"
+}set;
+
 void main()
 {
+	set st1;
+	cout << "Nhap port: " << endl;
+	cin >> st1.port;
+	getchar();
+
 	// init winsock
 	WSADATA wsData;
 	WORD ver = MAKEWORD(2, 2);
@@ -30,7 +47,7 @@ void main()
 	// bind the ip address and port to the socket
 	sockaddr_in hint; //sockaddr_in is a data type in the C++ socket library used to represent the IP address and port number of an endpoint
 	hint.sin_family = AF_INET;
-	hint.sin_port = htons(54000);
+	hint.sin_port = htons(st1.port);
 	hint.sin_addr.S_un.S_addr = INADDR_ANY;  //could also use inet_pton
 
 	bind(listening, (sockaddr*)&hint, sizeof(hint));
@@ -63,38 +80,34 @@ void main()
 	//close listening socket
 	closesocket(listening);
 
-	char nameFile[30];
-	int err = recv(clientSocket, (char*)nameFile, 30, 0);
+	int err = recv(clientSocket, (char*)st1.nameFile, 50, 0);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
 		closesocket(clientSocket);
 	}
-	/*nameFile[err] = NULL;*/
+	/*st1.nameFile[err] = NULL;*/
 	printf("recv %d bytes [OK]\n", err);
-	cout << "nameFile: " << nameFile << endl; // in ra tên file
+	cout << "nameFile: " << st1.nameFile << endl; // in ra tên file
 	
-	string path;
 	cout << "Nhap duong dan den file thu muc can tao ben may chu: " << endl;
-	getline(cin, path);
-	//char* path_result = new char[sizeof(nameFile) + sizeof(path)];
-	string path_result;
-	path_result = path + nameFile;
-	cout <<"path_result: " << path_result << endl; // in ra đường dẫn
+	getline(cin, st1.path);
+
+	st1.path_result = st1.path + st1.a + st1.nameFile;
+	cout <<"path_result: " << st1.path_result << endl; // in ra đường dẫn
 
 	// nhận kích thước file
-	int filesize = 0;
-	err = recv(clientSocket, (char*)&filesize, sizeof(filesize), 0);
+	err = recv(clientSocket, (char*)&st1.filesize, sizeof(st1.filesize), 0);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
 		closesocket(clientSocket);
 	}
 	printf("recv %d bytes [OK]\n", err);
-	cout << "size of file:" << filesize << endl; //in size
+	cout << "size of file:" << st1.filesize << endl; //in size
 
-	char* buffer = new char[filesize];
-	err = recv(clientSocket, buffer, filesize, MSG_WAITALL);
+	char* buffer = new char[st1.filesize];
+	err = recv(clientSocket, buffer, st1.filesize, MSG_WAITALL);
 	if (err <= 0)
 	{
 		printf("recv: %d\n", WSAGetLastError());
@@ -103,12 +116,11 @@ void main()
 	printf("recv %d bytes [OK]\n", err);
 	cout << "data: " << buffer << endl; // in data
 
-	ofstream file(path_result, ios::out | ios::binary);
-	file.write(buffer, filesize);
+	ofstream file(st1.path_result, ios::out | ios::binary);
+	file.write(buffer, st1.filesize);
 	file.close();
 
 	delete[] buffer;
-	//delete[] path_result;
 
 	//close socket
 	closesocket(clientSocket);
